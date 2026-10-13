@@ -3,7 +3,7 @@ window.LIRCIN = {
   repo: "TheRealRickPrime/LIRCin",          // GitHub repo that hosts the Releases (downloads)
   site: "https://lircin.github.io",
   email: "support@example.com",              // CHANGE: where buyers send receipts / support requests
-  paypal: "https://www.paypal.com/donate?business=wingless422%40gmail.com&currency_code=USD&item_name=L%27IRCin%20support", // PayPal pay link (email-based; swap for a paypal.me/NAME link if you create one)
+  paypal: "https://paypal.me/lircin",          // PayPal.Me link
   sponsors: "https://github.com/sponsors/TheRealRickPrime", // optional: GitHub Sponsors (free)
   kofi: "https://ko-fi.com/YOURNAME",        // optional: Ko-fi (0% fee on donations)
   liberapay: "https://liberapay.com/YOURNAME", // optional: Liberapay (free, recurring)
