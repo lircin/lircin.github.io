@@ -4,7 +4,7 @@
     <a class="l" href="index.html#features">Features</a><a class="l" href="index.html#editions">Editions</a>
     <a class="l" href="support.html">Support</a><a class="l" href="docs.html">Docs</a>
     <a class="btn sm" href="download.html">Download</a></div></nav>`;
-  const foot = `<footer><div class="wrap"><div>© ${new Date().getFullYear()} L'IRCin. Not affiliated with mIRC, IceChat or Discord.</div>
+  const foot = `<footer><div class="wrap"><div>© 2026 L'IRCin. All rights reserved. L'IRCin is a trademark of its owner. Not affiliated with mIRC, IceChat or Discord.</div>
     <div><a href="download.html">Download</a> · <a href="support.html">Support</a> · <a href="license.html">License</a> · <a href="privacy.html">Privacy</a> ·
     <a href="https://github.com/${C.repo}">GitHub</a></div></div></footer>`;
   document.body.insertAdjacentHTML("afterbegin", nav);
