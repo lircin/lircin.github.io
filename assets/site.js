@@ -1,6 +1,6 @@
 (function () {
   const C = window.LIRCIN;
-  const nav = `<nav><div class="wrap"><a class="logo" href="index.html">L'IRC<b>in</b></a><span class="sp"></span>
+  const nav = `<nav><div class="wrap"><a class="logo" href="index.html"><img src="assets/icon.png" alt="">L'IRC<b>in</b></a><span class="sp"></span>
     <a class="l" href="index.html#features">Features</a><a class="l" href="index.html#editions">Editions</a>
     <a class="l" href="support.html">Support</a><a class="l" href="docs.html">Docs</a>
     <a class="btn sm" href="download.html">Download</a></div></nav>`;
