@@ -10,7 +10,6 @@
   document.body.insertAdjacentHTML("afterbegin", nav);
   document.body.insertAdjacentHTML("beforeend", foot);
   document.querySelectorAll("[data-link]").forEach(a => { a.href = C[a.dataset.link]; });
-  document.querySelectorAll("[data-price]").forEach(e => { e.textContent = "$" + C.prices[e.dataset.price]; });
   document.querySelectorAll("[data-email]").forEach(a => { a.href = "mailto:" + C.email; a.textContent = C.email; });
 
   // Download page: list GitHub releases (beta vs stable), falls back to the Releases page.

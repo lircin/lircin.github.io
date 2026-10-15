@@ -3,9 +3,10 @@ window.LIRCIN = {
   repo: "lircin/LIRCin",          // GitHub repo that hosts the Releases (downloads)
   site: "https://lircin.github.io",
   email: "support@example.com",              // CHANGE: where buyers send receipts / support requests
-  paypal: "https://paypal.me/lircin",          // PayPal.Me link
+  supporter: "https://quasarlabs3.gumroad.com/l/wbwyl",
+  pro: "https://quasarlabs3.gumroad.com/l/rgxxc",
   sponsors: "https://github.com/sponsors/TheRealRickPrime", // optional: GitHub Sponsors (free)
   kofi: "https://ko-fi.com/YOURNAME",        // optional: Ko-fi (0% fee on donations)
   liberapay: "https://liberapay.com/YOURNAME", // optional: Liberapay (free, recurring)
-  prices: { supporter: 10, pro: 25 }         // USD
+  // Prices are displayed on Gumroad to avoid stale checkout amounts.
 };
