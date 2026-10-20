@@ -39,6 +39,8 @@ h2{font-size:34px;margin:0 0 10px;font-weight:800}.sub{color:var(--mut);margin:0
 .pill.beta{background:#e6a817;color:#222}
 .rel{display:flex;gap:16px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:12px;flex-wrap:wrap}
 .release-links{gap:8px;justify-content:flex-end}
+.pill.selfsigned{background:#d48648;color:#1b120c}
+.hero .row .btn{white-space:nowrap}
 .rel small{color:var(--mut)}
 code,pre{background:#0b0c1c;border:1px solid var(--line);border-radius:8px;padding:2px 7px;font-family:Consolas,monospace;font-size:14px}
 pre{padding:14px;overflow:auto}
