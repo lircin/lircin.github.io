@@ -32,6 +32,22 @@
   function asset(release, names) {
     return (release.assets || []).find(x => names.includes(x.name));
   }
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
+  }
+  async function allReleases() {
+    const releases = [];
+    for (let page = 1; ; page++) {
+      const response = await fetch(`https://api.github.com/repos/${C.repo}/releases?per_page=100&page=${page}`);
+      if (!response.ok) throw new Error("Release list unavailable");
+      const batch = await response.json();
+      if (!Array.isArray(batch)) throw new Error("Invalid release list");
+      releases.push(...batch);
+      if (batch.length < 100) return releases;
+    }
+  }
   function windowsZip(release, edition) {
     const prefix = edition === "Free" ? `LIRCin-${versionOf(release)}` : `LIRCin-${edition}-${versionOf(release)}`;
     return asset(release, [`${prefix}-self-signed-win-x64.zip`, `${prefix}-win-x64.zip`]);
@@ -61,17 +77,14 @@
     if (note) note.textContent = `${release.prerelease ? "Preview" : "Stable"} · Windows 10/11 · Wine downloads run the Windows app and are not native Linux builds.`;
   }
 
-  // Show current GitHub releases; use a full page so older beta builds do not hide newer uploads.
+  // Load every release page so older builds remain directly downloadable from this page.
   const list = document.getElementById("releases");
   if (list || document.getElementById("latest-windows")) {
-    fetch(`https://api.github.com/repos/${C.repo}/releases?per_page=100&page=1`).then(r => {
-      if (!r.ok) throw new Error("Release list unavailable");
-      return r.json();
-    }).then(rs => {
+    allReleases().then(rs => {
       if (!Array.isArray(rs) || !rs.length) throw 0;
       renderLatestRelease(rs);
       if (!list) return;
-      list.innerHTML = rs.slice(0, 20).map(r => {
+      list.innerHTML = rs.map(r => {
         const assets = r.assets || [];
         const version = versionOf(r);
         const find = name => assets.find(x => x.name === name);
@@ -90,21 +103,27 @@
           const wine = wineArchive(r, e.name);
           const label = e.name === "Free" ? "Free · no ads" : e.name === "FreeAds" ? "FreeAds" : e.name;
           return [
-            zip && `<a class="btn sm" href="${zip.browser_download_url}">${label} ZIP</a>`,
-            setup && `<a class="btn alt sm" href="${setup.browser_download_url}">${e.name} Setup</a>`,
-            distribution && `<a class="btn alt sm" href="${distribution.browser_download_url}">${e.name} Setup ZIP</a>`,
-            wine && `<a class="btn alt sm" href="${wine.browser_download_url}">${e.name} Linux (Wine)</a>`
+            zip && `<a class="btn sm" href="${escapeHtml(zip.browser_download_url)}">${escapeHtml(label)} ZIP</a>`,
+            setup && `<a class="btn alt sm" href="${escapeHtml(setup.browser_download_url)}">${escapeHtml(e.name)} Setup</a>`,
+            distribution && `<a class="btn alt sm" href="${escapeHtml(distribution.browser_download_url)}">${escapeHtml(e.name)} Setup ZIP</a>`,
+            wine && `<a class="btn alt sm" href="${escapeHtml(wine.browser_download_url)}">${escapeHtml(e.name)} Linux (Wine)</a>`
           ].filter(Boolean);
         });
         const checksums = find("SHA256SUMS-self-signed.txt") || find("SHA256SUMS.txt");
-        if (checksums) links.push(`<a class="btn alt sm" href="${checksums.browser_download_url}">SHA-256</a>`);
-        links.push(`<a class="btn alt sm" href="${r.html_url}">Notes</a>`);
+        if (checksums) links.push(`<a class="btn alt sm" href="${escapeHtml(checksums.browser_download_url)}">SHA-256</a>`);
+        const signatureLinks = assets.filter(x => x.name.endsWith(".sigstore.json")).map(signature => {
+          const artifactName = signature.name.slice(0, -".sigstore.json".length);
+          return `<a class="btn alt sm" href="${escapeHtml(signature.browser_download_url)}">Sigstore · ${escapeHtml(artifactName)}</a>`;
+        });
+        if (signatureLinks.length)
+          links.push(`<details><summary class="btn alt sm">Sigstore signatures</summary><div class="row">${signatureLinks.join("")}</div></details>`);
+        links.push(`<a class="btn alt sm" href="${escapeHtml(r.html_url)}">Notes</a>`);
         const freeZip = windowsZip(r, "Free");
         const mb = freeZip ? (freeZip.size / 1048576).toFixed(0) + " MB" : "";
-        return `<div class="rel"><div><strong>${r.name || r.tag_name}</strong>
+        return `<div class="rel"><div><strong>${escapeHtml(r.name || r.tag_name)}</strong>
           <span class="pill ${r.prerelease ? "beta" : ""}">${r.prerelease ? "BETA" : "STABLE"}</span>
           ${assets.some(x => x.name.includes("self-signed")) ? '<span class="pill selfsigned">SELF-SIGNED</span>' : ""}<br>
-          <small>${new Date(r.published_at).toLocaleDateString()} ${mb ? "· " + mb : ""} · Windows 10/11 x64</small></div>
+          <small>${escapeHtml(new Date(r.published_at).toLocaleDateString())} ${mb ? "· " + mb : ""} · Windows 10/11 x64</small></div>
           <div class="row release-links">${links.join("")}</div></div>`;
       }).join("");
     }).catch(() => {
