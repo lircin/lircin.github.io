@@ -3,9 +3,9 @@
   const nav = `<nav><div class="wrap"><a class="logo" href="index.html"><img src="assets/icon.png" alt="">L'IRC<b>in</b></a><span class="sp"></span>
     <a class="l" href="index.html#features">Features</a><a class="l" href="index.html#editions">Editions</a>
     <a class="l" href="support.html">Support</a><a class="l" href="docs.html">Docs</a>
-    <a class="btn sm" href="download.html">Download</a></div></nav>`;
+    <a class="btn sm" href="https://lircin.github.io/download.html#releases">Open Releases</a></div></nav>`;
   const foot = `<footer><div class="wrap"><div>© 2026 L'IRCin. All rights reserved. L'IRCin is a trademark of its owner. Not affiliated with mIRC, IceChat or Discord.</div>
-    <div><a href="download.html">Download</a> · <a href="support.html">Support</a> · <a href="license.html">License</a> · <a href="privacy.html">Privacy</a> ·
+    <div><a href="https://lircin.github.io/download.html#releases">Open Releases</a> · <a href="support.html">Support</a> · <a href="license.html">License</a> · <a href="privacy.html">Privacy</a> ·
     <a href="https://github.com/${C.repo}">GitHub</a></div></div></footer>`;
   document.body.insertAdjacentHTML("afterbegin", nav);
   document.body.insertAdjacentHTML("beforeend", foot);
@@ -64,21 +64,21 @@
     const note = document.getElementById("latest-build-note");
     const winAsset = windowsZip(release, "Free");
     const linuxAsset = wineArchive(release, "Free");
-    if (winAsset) {
+    if (win && winAsset) {
       win.href = winAsset.browser_download_url;
       win.textContent = `Free for Windows · ${release.tag_name}`;
     }
-    if (linuxAsset) {
+    if (linux && linuxAsset) {
       linux.href = linuxAsset.browser_download_url;
       linux.textContent = `Free (Wine) · ${release.tag_name}`;
-    } else {
+    } else if (linux) {
       linux.hidden = true;
     }
     if (note) note.textContent = `${release.prerelease ? "Preview" : "Stable"} · Windows 10/11 · Wine downloads run the Windows app and are not native Linux builds.`;
   }
 
   // Load every release page so older builds remain directly downloadable from this page.
-  const list = document.getElementById("releases");
+  const list = document.getElementById("release-list");
   if (list || document.getElementById("latest-windows")) {
     allReleases().then(rs => {
       if (!Array.isArray(rs) || !rs.length) throw 0;
@@ -128,8 +128,9 @@
       }).join("");
     }).catch(() => {
       if (list) {
-        list.innerHTML = `<div class="rel"><div><strong>All releases</strong><br><small>Beta and stable builds</small></div>
-          <a class="btn sm" href="https://github.com/${C.repo}/releases">Open releases</a></div>`;
+        list.innerHTML = `<div class="rel release-error"><div><strong>Releases are temporarily unavailable</strong><br>
+          <small>Please refresh this page in a moment. Downloads stay on the L'IRCin website.</small></div>
+          <button class="btn sm" type="button" onclick="location.reload()">Try again</button></div>`;
       }
     });
   }
