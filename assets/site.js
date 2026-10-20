@@ -34,19 +34,37 @@
     fetch(`https://api.github.com/repos/${C.repo}/releases`).then(r => r.json()).then(rs => {
       if (!Array.isArray(rs) || !rs.length) throw 0;
       list.innerHTML = rs.slice(0, 8).map(r => {
-        const a = (r.assets || []).find(x => /^LIRCin-\d.*-win-x64\.zip$/i.test(x.name));
-        const ads = (r.assets || []).find(x => /^LIRCin-FreeAds-.*-win-x64\.zip$/i.test(x.name));
-        const setup = (r.assets || []).find(x => /^LIRCin-Free-\d.*-Setup-win-x64\.exe$/i.test(x.name));
-        const adsSetup = (r.assets || []).find(x => /^LIRCin-FreeAds-\d.*-Setup-win-x64\.exe$/i.test(x.name));
-        const mb = a ? (a.size / 1048576).toFixed(0) + " MB" : "";
+        const assets = r.assets || [];
+        const version = r.tag_name.replace(/^v/, "");
+        const find = name => assets.find(x => x.name === name);
+        const editions = [
+          { name: "Free", prefix: `LIRCin-${version}` },
+          { name: "FreeAds", prefix: `LIRCin-FreeAds-${version}` },
+          { name: "Supporter", prefix: `LIRCin-Supporter-${version}` },
+          { name: "Pro", prefix: `LIRCin-Pro-${version}` }
+        ];
+        const links = editions.flatMap(e => {
+          const zip = find(`${e.prefix}-win-x64.zip`);
+          const setup = find(`LIRCin-${e.name}-${version}-Setup-win-x64.exe`);
+          const distribution = find(`LIRCin-${e.name}-${version}-win-x64-distribution.zip`);
+          const wine = find(`LIRCin-${e.name}-${version}-linux-wine.tar.gz`);
+          const label = e.name === "Free" ? "Free · no ads" : e.name === "FreeAds" ? "FreeAds" : e.name;
+          return [
+            zip && `<a class="btn sm" href="${zip.browser_download_url}">${label} ZIP</a>`,
+            setup && `<a class="btn alt sm" href="${setup.browser_download_url}">${e.name} Setup</a>`,
+            distribution && `<a class="btn alt sm" href="${distribution.browser_download_url}">${e.name} Setup ZIP</a>`,
+            wine && `<a class="btn alt sm" href="${wine.browser_download_url}">${e.name} Linux (Wine)</a>`
+          ].filter(Boolean);
+        });
+        const checksums = find("SHA256SUMS.txt");
+        if (checksums) links.push(`<a class="btn alt sm" href="${checksums.browser_download_url}">SHA-256</a>`);
+        links.push(`<a class="btn alt sm" href="${r.html_url}">Notes</a>`);
+        const freeZip = find(`LIRCin-${version}-win-x64.zip`);
+        const mb = freeZip ? (freeZip.size / 1048576).toFixed(0) + " MB" : "";
         return `<div class="rel"><div><strong>${r.name || r.tag_name}</strong>
           <span class="pill ${r.prerelease ? "beta" : ""}">${r.prerelease ? "BETA" : "STABLE"}</span><br>
           <small>${new Date(r.published_at).toLocaleDateString()} ${mb ? "· " + mb : ""} · Windows 10/11 x64</small></div>
-          <div class="row"><a class="btn sm" href="${a ? a.browser_download_url : r.html_url}">Free (no ads)</a>
-          ${ads ? `<a class="btn alt sm" href="${ads.browser_download_url}">Free with sponsorships</a>` : ""}
-          ${setup ? `<a class="btn alt sm" href="${setup.browser_download_url}">Free Setup</a>` : ""}
-          ${adsSetup ? `<a class="btn alt sm" href="${adsSetup.browser_download_url}">FreeAds Setup</a>` : ""}
-          <a class="btn alt sm" href="${r.html_url}">Notes</a></div></div>`;
+          <div class="row release-links">${links.join("")}</div></div>`;
       }).join("");
     }).catch(() => {
       list.innerHTML = `<div class="rel"><div><strong>All releases</strong><br><small>Beta and stable builds</small></div>
