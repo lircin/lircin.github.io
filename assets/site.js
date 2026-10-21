@@ -1,7 +1,7 @@
 (function () {
   const C = window.LIRCIN;
   const nav = `<nav><div class="wrap"><a class="logo" href="index.html"><img src="assets/icon.png" alt="">L'IRC<b>in</b></a><span class="sp"></span>
-    <a class="l" href="index.html#features">Features</a><a class="l" href="index.html#editions">Editions</a>
+    <a class="l" href="index.html#tour">Tour</a><a class="l" href="index.html#wallpapers">Wallpapers</a><a class="l" href="themes.html">Themes</a><a class="l" href="index.html#editions">Editions</a>
     <a class="l" href="support.html">Support</a><a class="l" href="docs.html">Docs</a>
     <a class="btn sm" href="https://lircin.github.io/download.html#releases">Open Releases</a></div></nav>`;
   const foot = `<footer><div class="wrap"><div>© 2026 L'IRCin. All rights reserved. L'IRCin is a trademark of its owner. Not affiliated with mIRC, IceChat or Discord.</div>
@@ -9,6 +9,14 @@
     <a href="https://github.com/${C.repo}">GitHub</a></div></div></footer>`;
   document.body.insertAdjacentHTML("afterbegin", nav);
   document.body.insertAdjacentHTML("beforeend", foot);
+  const reveals = document.querySelectorAll(".reveal");
+  if (reveals.length && "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("js");
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }), { rootMargin: "0px 0px -8% 0px" });
+    reveals.forEach(el => io.observe(el));
+  }
   document.querySelectorAll("[data-link]").forEach(a => { a.href = C[a.dataset.link]; });
   document.querySelectorAll("[data-email]").forEach(a => { a.href = "mailto:" + C.email; a.textContent = C.email; });
   const sponsorship = document.getElementById("sponsorship-checkout");
@@ -28,6 +36,7 @@
     });
   }
 
+  function isBeta(release) { return release.prerelease || /-(alpha|beta|rc)/i.test(release.tag_name); }
   function versionOf(release) { return release.tag_name.replace(/^v/, ""); }
   function asset(release, names) {
     return (release.assets || []).find(x => names.includes(x.name));
@@ -74,7 +83,7 @@
     } else if (linux) {
       linux.hidden = true;
     }
-    if (note) note.textContent = `${release.prerelease ? "Preview" : "Stable"} · Windows 10/11 · Wine downloads run the Windows app and are not native Linux builds.`;
+    if (note) note.textContent = `${release.prerelease ? "Preview" : isBeta(release) ? "Beta release" : "Stable"} · Windows 10/11 · Wine downloads run the Windows app and are not native Linux builds.`;
   }
 
   // Load every release page so older builds remain directly downloadable from this page.
@@ -121,7 +130,7 @@
         const freeZip = windowsZip(r, "Free");
         const mb = freeZip ? (freeZip.size / 1048576).toFixed(0) + " MB" : "";
         return `<div class="rel"><div><strong>${escapeHtml(r.name || r.tag_name)}</strong>
-          <span class="pill ${r.prerelease ? "beta" : ""}">${r.prerelease ? "BETA" : "STABLE"}</span>
+          <span class="pill ${isBeta(r) ? "beta" : ""}">${r.prerelease ? "PREVIEW" : isBeta(r) ? "BETA RELEASE" : "STABLE"}</span>
           ${assets.some(x => x.name.includes("self-signed")) ? '<span class="pill selfsigned">SELF-SIGNED</span>' : ""}<br>
           <small>${escapeHtml(new Date(r.published_at).toLocaleDateString())} ${mb ? "· " + mb : ""} · Windows 10/11 x64</small></div>
           <div class="row release-links">${links.join("")}</div></div>`;
